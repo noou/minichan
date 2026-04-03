@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minichan - Анонимный имиджборд</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #e0e0e0;
+        }
+        .brutal-border {
+            border: 3px solid #000;
+        }
+        .brutal-shadow {
+            box-shadow: 4px 4px 0 #000;
+        }
+        .btn-brutal {
+            background: #fff;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+            transition: all 0.1s;
+        }
+        .btn-brutal:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0 #000;
+        }
+        .btn-brutal:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0 0 0 #000;
+        }
+        .thread-card:hover {
+            border-color: #666;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold mb-2" style="text-shadow: 2px 2px 0 #000;">MINICHAN</h1>
+            <p class="text-sm text-gray-600">Анонимный имиджборд</p>
+        </header>
+
+        <!-- Create Thread Form -->
+        <div class="brutal-border brutal-shadow bg-white p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 border-b-2 border-black pb-2">Создать тред</h2>
+            <form action="/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+                <div>
+                    <label class="block font-bold mb-1">Заголовок *</label>
+                    <input type="text" name="title" required maxlength="200"
+                        class="w-full brutal-border p-2 font-mono focus:outline-none focus:bg-yellow-50"
+                        placeholder="Введите заголовок...">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Текст *</label>
+                    <textarea name="content" required rows="4"
+                        class="w-full brutal-border p-2 font-mono focus:outline-none focus:bg-yellow-50"
+                        placeholder="Введите текст..."></textarea>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Изображение</label>
+                    <input type="file" name="image" accept="image/*"
+                        class="w-full brutal-border p-2 font-mono bg-gray-50">
+                </div>
+                <button type="submit" class="btn-brutal px-6 py-2 font-bold">
+                    СОЗДАТЬ ТРЕД
+                </button>
+            </form>
+        </div>
+
+        <!-- Threads List -->
+        <div class="space-y-6">
+            {% if threads %}
+                {% for thread in threads %}
+                <article class="thread-card brutal-border bg-white p-4 brutal-shadow">
+                    <div class="flex justify-between items-start mb-3">
+                        <a href="/thread/{{ thread.id }}" class="text-xl font-bold hover:underline">
+                            {{ thread.title }}
+                        </a>
+                        <form action="/thread/{{ thread.id }}/delete" method="POST" class="inline"
+                            onsubmit="return confirm('Удалить тред?');">
+                            <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-bold">
+                                [X]
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-xs text-gray-500 mb-3">
+                        {{ format_date(thread.created_at) }} | Ответов: {{ thread.posts|length }}
+                    </div>
+
+                    <div class="mb-3">
+                        {% if thread.image %}
+                        <div class="mb-3">
+                            <img src="/uploads/{{ thread.image }}" alt="Thread image"
+                                class="max-w-xs max-h-48 brutal-border">
+                        </div>
+                        {% endif %}
+                        <p class="whitespace-pre-wrap">{{ thread.content }}</p>
+                    </div>
+
+                    <a href="/thread/{{ thread.id }}" class="btn-brutal inline-block px-4 py-1 text-sm font-bold">
+                        ОТВЕТИТЬ
+                    </a>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="brutal-border bg-white p-8 text-center">
+                    <p class="text-xl font-bold mb-2">Нет тредов</p>
+                    <p class="text-gray-600">Будь первым, кто создаст тред!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-xs text-gray-500">
+            <p>MINICHAN &copy; 2026 | Анонимный имиджборд</p>
+        </footer>
+    </div>
+</body>
+</html>
